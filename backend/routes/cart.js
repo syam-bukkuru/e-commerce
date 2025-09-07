@@ -5,6 +5,9 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+/**
+ * Add item to cart (or increment if already exists)
+ */
 router.post('/', auth, async (req, res) => {
   try {
     const { productId, quantity, size } = req.body;
@@ -41,7 +44,9 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-
+/**
+ * Get cart for logged-in user
+ */
 router.get('/', auth, async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user.userId })
@@ -55,7 +60,41 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+/**
+ * Update quantity of an item in cart
+ */
+router.put('/:productId/:size', auth, async (req, res) => {
+  try {
+    const { productId, size } = req.params;
+    const { quantity } = req.body;
 
+    if (quantity < 1) {
+      return res.status(400).json({ message: 'Quantity must be at least 1' });
+    }
+
+    const cart = await Cart.findOne({ user: req.user.userId });
+    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+
+    const item = cart.items.find(
+      (i) => i.product.toString() === productId && i.size === size
+    );
+
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found in cart' });
+    }
+
+    item.quantity = quantity; // ✅ set exact quantity
+
+    await cart.save();
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/**
+ * Remove item from cart
+ */
 router.delete('/:productId/:size', auth, async (req, res) => {
   try {
     const { productId, size } = req.params;
