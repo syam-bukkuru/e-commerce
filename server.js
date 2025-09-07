@@ -3,6 +3,7 @@ const express = require('express');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/item');
+const cartRoutes = require('./routes/cart');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +21,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/items', itemRoutes);
+app.use('/api/cart', cartRoutes);
+
 
 
 // health check route
