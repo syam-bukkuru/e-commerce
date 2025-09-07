@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+/* Slick Carousel Custom Theme */
+
+/* arrows */
+.slick-prev:before,
+.slick-next:before {
+  color: #9333ea !important; /* Tailwind purple-600 */
+  font-size: 28px;
+}
+
+/* dots */
+.slick-dots li button:before {
+  font-size: 12px;
+  color: #9333ea !important;
+  opacity: 0.5;
+}
+
+.slick-dots li.slick-active button:before {
+  color: #7e22ce !important; /* purple-700 */
+  opacity: 1;
+}

@@ -1,15 +1,20 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import App from './App'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Products from './pages/Products'
-import Cart from './pages/Cart'
-import Layout from './components/Layout'   
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import App from "./App";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Products from "./pages/Products";
+import Cart from "./pages/Cart";
+import Layout from "./components/Layout";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// global styles
+import "./index.css";
+// slick carousel styles
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -21,4 +26,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </Route>
     </Routes>
   </BrowserRouter>
-)
+);
