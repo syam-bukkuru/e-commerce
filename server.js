@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
-
+const itemRoutes = require('./routes/item');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,8 +12,6 @@ connectDB().catch(err => console.error(err));
 
 // middleware
 app.use(express.json());
-app.use(express.json());
-
 
 // basic route
 app.get('/', (req, res) => {
@@ -21,12 +19,12 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/items', itemRoutes);
 
 
 // health check route
 app.get('/health', (req, res) => res.sendStatus(200));
 
-// export app for testing (important)
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
