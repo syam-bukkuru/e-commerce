@@ -1,12 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
+// Use environment variable from Vite
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api', // change this to deployed backend later
+  baseURL: import.meta.env.VITE_API_BASE_URL + "/api",
 });
 
 // Attach JWT token if available
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
     console.log("Token attached:", token);
