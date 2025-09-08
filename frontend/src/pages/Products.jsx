@@ -45,16 +45,19 @@ export default function Products() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">🛍️ Fashion Products</h1>
+    <div className="p-6 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6 text-center md:text-left">
+        🛍️ Fashion Products
+      </h1>
 
       {/* Filters */}
-      <div className="flex space-x-4 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8 bg-gray-50 p-4 rounded-lg shadow-sm">
+        {/* Category */}
         <select
           name="category"
           value={filters.category}
           onChange={handleFilterChange}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full md:w-auto"
         >
           <option value="">All Categories</option>
           <option value="Men">Men</option>
@@ -62,11 +65,12 @@ export default function Products() {
           <option value="Kids">Kids</option>
         </select>
 
+        {/* Size */}
         <select
           name="size"
           value={filters.size}
           onChange={handleFilterChange}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full md:w-auto"
         >
           <option value="">All Sizes</option>
           <option value="XS">XS</option>
@@ -76,26 +80,33 @@ export default function Products() {
           <option value="XL">XL</option>
         </select>
 
-        <input
-          type="number"
-          name="minPrice"
-          placeholder="Min Price"
-          value={filters.minPrice}
-          onChange={handleFilterChange}
-          className="border p-2 rounded w-32"
-        />
-        <input
-          type="number"
-          name="maxPrice"
-          placeholder="Max Price"
-          value={filters.maxPrice}
-          onChange={handleFilterChange}
-          className="border p-2 rounded w-32"
-        />
+        {/* Price Range */}
+        <select
+          name="priceRange"
+          value={
+            filters.minPrice && filters.maxPrice
+              ? `${filters.minPrice}-${filters.maxPrice}`
+              : "-"
+          }
+          onChange={(e) => {
+            const [min, max] = e.target.value.split("-");
+            setFilters({ ...filters, minPrice: min || "", maxPrice: max || "" });
+          }}
+          className="border p-2 rounded w-full md:w-auto"
+        >
+          <option value="-">All Prices</option>
+          <option value="200-500">₹200 - ₹500</option>
+          <option value="500-700">₹500 - ₹700</option>
+          <option value="700-1000">₹700 - ₹1000</option>
+          <option value="1000-2000">₹1000 - ₹2000</option>
+          <option value="2000-5000">₹2000 - ₹5000</option>
+          <option value="5000-10000">₹5000 - ₹10000</option>
+        </select>
 
+        {/* Apply Button */}
         <button
           onClick={applyFilters}
-          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+          className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition w-full md:w-auto"
         >
           Apply
         </button>
@@ -103,9 +114,9 @@ export default function Products() {
 
       {/* Products Grid */}
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-center text-gray-500">Loading products...</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((p) => (
             <ProductCard key={p._id} product={p} addToCart={addToCart} />
           ))}
@@ -115,46 +126,51 @@ export default function Products() {
   );
 }
 
-// ⬇️ ProductCard component handles local quantity state
+// ⬇️ ProductCard component
 function ProductCard({ product, addToCart }) {
   const [quantity, setQuantity] = useState(1);
 
   return (
-    <div className="border rounded-lg shadow p-4 flex flex-col">
+    <div className="border rounded-xl shadow-sm hover:shadow-lg transition flex flex-col bg-white">
       <img
         src={product.imageUrl || "https://via.placeholder.com/150"}
         alt={product.name}
-        className="h-48 w-full object-cover mb-3 rounded"
+        className="h-56 w-full object-contain rounded-t-xl bg-gray-100 p-2"
       />
-      <h2 className="text-lg font-semibold">{product.name}</h2>
-      <p className="text-gray-600">
-        {product.category} • Size {product.size}
-      </p>
-      <p className="text-purple-600 font-bold">₹{product.price}</p>
+      <div className="p-4 flex flex-col flex-grow">
+        <h2 className="text-lg font-semibold truncate">{product.name}</h2>
+        <p className="text-gray-500 text-sm mb-1">
+          {product.category} • Size {product.size}
+        </p>
+        <p className="text-purple-600 font-bold text-lg mb-4">
+          ₹{product.price}
+        </p>
 
-      {/* Quantity Selector */}
-      <div className="flex items-center mt-3 space-x-2">
+        {/* Quantity Selector */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            -
+          </button>
+          <span className="font-medium">{quantity}</span>
+          <button
+            onClick={() => setQuantity((q) => q + 1)}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Add to Cart Button */}
         <button
-          onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-          className="px-3 py-1 bg-gray-300 rounded"
+          onClick={() => addToCart(product._id, product.size, quantity)}
+          className="mt-auto bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
         >
-          -
-        </button>
-        <span>{quantity}</span>
-        <button
-          onClick={() => setQuantity((q) => q + 1)}
-          className="px-3 py-1 bg-gray-300 rounded"
-        >
-          +
+          Add to Cart
         </button>
       </div>
-
-      <button
-        onClick={() => addToCart(product._id, product.size, quantity)}
-        className="mt-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-      >
-        Add to Cart
-      </button>
     </div>
   );
 }
