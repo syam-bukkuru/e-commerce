@@ -24,6 +24,21 @@ export default function App() {
     }
   };
 
+  // ✅ Add to Cart function
+  const handleAddToCart = async (item) => {
+    try {
+      await API.post("/cart", {
+        productId: item._id,
+        quantity: 1,
+        size: item.size || "M", // fallback if no size
+      });
+      alert(`${item.name} added to cart ✅`);
+    } catch (err) {
+      console.error("Add to cart failed", err);
+      alert("❌ Failed to add to cart");
+    }
+  };
+
   useEffect(() => {
     fetchItems();
   }, []);
@@ -46,22 +61,22 @@ export default function App() {
       </div>
 
       {/* DEALS OF THE DAY */}
-      <DealsCarousel items={deals} />
+      <DealsCarousel items={deals} onAddToCart={handleAddToCart} />
 
       {/* MEN SECTION */}
-      <Section title="Men's Collection" items={menItems} />
+      <Section title="Men's Collection" items={menItems} onAddToCart={handleAddToCart} />
 
       {/* WOMEN SECTION */}
-      <Section title="Women's Collection" items={womenItems} />
+      <Section title="Women's Collection" items={womenItems} onAddToCart={handleAddToCart} />
 
       {/* KIDS SECTION */}
-      <Section title="Kids' Collection" items={kidsItems} />
+      <Section title="Kids' Collection" items={kidsItems} onAddToCart={handleAddToCart} />
     </div>
   );
 }
 
 // ✅ Deals Carousel Component
-function DealsCarousel({ items }) {
+function DealsCarousel({ items, onAddToCart }) {
   const settings = {
     dots: true,
     infinite: true,
@@ -94,7 +109,10 @@ function DealsCarousel({ items }) {
                 {item.name}
               </h3>
               <p className="text-purple-700 font-bold mt-1">₹{item.price}</p>
-              <button className="mt-3 w-full bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition">
+              <button
+                onClick={() => onAddToCart(item)}
+                className="mt-3 w-full bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition"
+              >
                 Add to Cart
               </button>
             </div>
@@ -106,7 +124,7 @@ function DealsCarousel({ items }) {
 }
 
 // ✅ Reusable Category Section
-function Section({ title, items }) {
+function Section({ title, items, onAddToCart }) {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
@@ -139,7 +157,10 @@ function Section({ title, items }) {
               </div>
 
               {/* Button */}
-              <button className="mt-3 w-full bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition">
+              <button
+                onClick={() => onAddToCart(item)}
+                className="mt-3 w-full bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition"
+              >
                 Add to Cart
               </button>
             </div>

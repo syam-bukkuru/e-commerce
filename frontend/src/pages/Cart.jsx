@@ -53,25 +53,23 @@ export default function Cart() {
                 className="flex flex-col md:flex-row items-center md:items-start justify-between 
                            border p-4 rounded-xl shadow bg-white hover:shadow-lg transition"
               >
-                {/* Image + Info */}
+                {/* Product Image + Info */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-6 w-full md:w-auto">
-                  {/* ✅ Product Image */}
                   <img
-                    src={item.product.imageUrl}
-                    alt={item.product.name}
+                    src={item.product?.imageUrl || "https://via.placeholder.com/150"}
+                    alt={item.product?.name || "Product"}
                     className="w-28 h-28 object-contain rounded-lg bg-gray-100 mb-3 sm:mb-0"
                   />
 
-                  {/* Product Info */}
                   <div className="text-center sm:text-left">
                     <h2 className="font-semibold text-lg text-gray-800">
-                      {item.product.name}
+                      {item.product?.name || "Unknown Product"}
                     </h2>
                     <p className="text-gray-500 text-sm">
-                      {item.product.category} • Size {item.size}
+                      {item.product?.category || "Category"} • Size {item.size}
                     </p>
                     <p className="text-purple-600 font-bold mt-1">
-                      ₹{item.product.price} × {item.quantity}
+                      ₹{item.product?.price || 0} × {item.quantity}
                     </p>
 
                     {/* Quantity Controls */}
@@ -108,14 +106,14 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Total Section */}
+          {/* Total */}
           <div className="mt-8 p-4 border-t text-right">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800">
               Total:{" "}
               <span className="text-purple-700">
                 ₹
                 {cart.items.reduce(
-                  (sum, item) => sum + item.product.price * item.quantity,
+                  (sum, item) => sum + (item.product?.price || 0) * item.quantity,
                   0
                 )}
               </span>
