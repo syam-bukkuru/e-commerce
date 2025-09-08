@@ -5,40 +5,44 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+// helper: return populated cart
+const getPopulatedCart = async (userId) => {
+  return await Cart.findOne({ user: userId })
+    .populate('items.product', 'name price category size imageUrl');
+};
+
 /**
- * Add item to cart (or increment if already exists)
+ * Add item to cart
  */
 router.post('/', auth, async (req, res) => {
   try {
     const { productId, quantity, size } = req.body;
 
-    // check if product exists
     const product = await Item.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
     let cart = await Cart.findOne({ user: req.user.userId });
 
     if (!cart) {
-      // create new cart
       cart = new Cart({
         user: req.user.userId,
         items: [{ product: productId, quantity, size }]
       });
     } else {
-      // check if item already exists in cart with same size
       const existingItem = cart.items.find(
         (i) => i.product.toString() === productId && i.size === size
       );
 
       if (existingItem) {
-        existingItem.quantity += quantity; // increment quantity
+        existingItem.quantity += quantity;
       } else {
         cart.items.push({ product: productId, quantity, size });
       }
     }
 
     await cart.save();
-    res.status(200).json(cart);
+    const populatedCart = await getPopulatedCart(req.user.userId);
+    res.status(200).json(populatedCart);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -49,11 +53,8 @@ router.post('/', auth, async (req, res) => {
  */
 router.get('/', auth, async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user.userId })
-      .populate('items.product', 'name price category size imageUrl');
-
+    const cart = await getPopulatedCart(req.user.userId);
     if (!cart) return res.json({ items: [] });
-
     res.json(cart);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -61,16 +62,14 @@ router.get('/', auth, async (req, res) => {
 });
 
 /**
- * Update quantity of an item in cart
+ * Update quantity
  */
 router.put('/:productId/:size', auth, async (req, res) => {
   try {
     const { productId, size } = req.params;
     const { quantity } = req.body;
 
-    if (quantity < 1) {
-      return res.status(400).json({ message: 'Quantity must be at least 1' });
-    }
+    if (quantity < 1) return res.status(400).json({ message: 'Quantity must be at least 1' });
 
     const cart = await Cart.findOne({ user: req.user.userId });
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
@@ -78,22 +77,20 @@ router.put('/:productId/:size', auth, async (req, res) => {
     const item = cart.items.find(
       (i) => i.product.toString() === productId && i.size === size
     );
+    if (!item) return res.status(404).json({ message: 'Item not found in cart' });
 
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found in cart' });
-    }
-
-    item.quantity = quantity; // ✅ set exact quantity
-
+    item.quantity = quantity;
     await cart.save();
-    res.json(cart);
+
+    const populatedCart = await getPopulatedCart(req.user.userId);
+    res.json(populatedCart);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 /**
- * Remove item from cart
+ * Remove item
  */
 router.delete('/:productId/:size', auth, async (req, res) => {
   try {
@@ -105,9 +102,10 @@ router.delete('/:productId/:size', auth, async (req, res) => {
     cart.items = cart.items.filter(
       (i) => !(i.product.toString() === productId && i.size === size)
     );
-
     await cart.save();
-    res.json(cart);
+
+    const populatedCart = await getPopulatedCart(req.user.userId);
+    res.json(populatedCart);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
